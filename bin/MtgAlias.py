@@ -10,7 +10,7 @@ from MtgCard import MtgCard
 from subprocess import call
 from MtgTools import getCardFilesList 
 
-
+#===================================================================================
 def aliasByNames(cards_directory, out_directory):
 	alias_directory = os.path.join(out_directory, 'ByNames')
 	cards = getCardFilesList(cards_directory)
@@ -37,7 +37,38 @@ def aliasByNames(cards_directory, out_directory):
 			call(["ln", '-s','-r', card_path, filepath])
 		count = count + 1
 
+#===================================================================================
+def aliasByCollections(cards_directory, out_directory):
+	alias_directory = os.path.join(out_directory, 'ByCollections')
+	cards = getCardFilesList(cards_directory)
 
+	total = len(cards)
+	count = 1
+	for card in cards:
+		card.loadFromImage()
+
+		if hasattr(card, 'expansion_name') and hasattr(card, 'expansion_code'):
+			directory = "["+card.expansion_code+"] "+card.expansion_name
+		else:
+			directory = "_No Collection"
+
+		if hasattr(card, 'expansion_code'):
+			filename = card.name + ' ('+card.expansion_code +').card'
+		elif hasattr(card, 'expansion_name'):
+			filename = card.name + ' ('+card.expansion_name+').card'
+		else:
+			filename = card.name + '.card'
+		card_path = card.path
+		filepath = os.path.join(alias_directory, directory)
+		if not os.path.exists(filepath):
+			os.makedirs(filepath)
+		filepath = os.path.join(filepath, filename)
+		if not os.path.exists(filepath):
+			print '['+str(count)+'/'+str(total)+'] '+filename
+			call(["ln", '-s','-r', card_path, filepath])
+		count = count + 1
+
+#===================================================================================
 def aliasByTypes(cards_directory, out_directory):
 	alias_directory = os.path.join(out_directory, 'ByTypes')
 	cards = getCardFilesList(cards_directory)
@@ -47,9 +78,10 @@ def aliasByTypes(cards_directory, out_directory):
 	subtypes = []
 	for card in cards:
 		card.loadFromImage()
-		for t in card.types:
-			if not t in types:
-				types.append(t)
+		if (hasattr(card, "types")):
+			for t in card.types:
+				if not t in types:
+					types.append(t)
 		if hasattr(card, 'subtypes'):
 			for t in card.subtypes:
 				if not t in subtypes:
@@ -89,7 +121,7 @@ def aliasByTypes(cards_directory, out_directory):
 				call(["ln", '-s','-r', card_path, filepath])
 			count = count + 1
 
-
+#===================================================================================
 def aliasByColors(cards_directory, out_directory):
 	alias_directory = os.path.join(out_directory, 'ByColors')
 	cards = getCardFilesList(cards_directory)
@@ -132,7 +164,7 @@ def aliasByColors(cards_directory, out_directory):
 				print '[ERROR] ' +card.name
 		count = count + 1
 				
-
+#===================================================================================
 def isArrayEqual(array_a, array_b):
 	for a in array_a:
 		if not a in array_b:
@@ -142,6 +174,7 @@ def isArrayEqual(array_a, array_b):
 			return False
 	return True
 
+#===================================================================================
 def toColorArray(color):
 	array = []
 	array.append('Blue') if 'U' in color else None
@@ -153,6 +186,7 @@ def toColorArray(color):
 	array.append('Land') if 'L' in color else None
 	return array
 
+#===================================================================================
 def getArrayDirectory(array):
 	directory = ''
 	for a in array:

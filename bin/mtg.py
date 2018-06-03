@@ -14,6 +14,7 @@ from MtgTools import exportToPuca
 from MtgTools import exportToDeckbox
 from MtgAlias import aliasByNames
 from MtgAlias import aliasByColors
+from MtgAlias import aliasByCollections
 from MtgAlias import aliasByTypes
 import argparse
 import os.path
@@ -43,7 +44,7 @@ def mtg():
 	
 	sp = subparsers.add_parser('show', help='Show metadata information from a card.')
 	sp.set_defaults(cmd = 'show')
-	sp.add_argument('file', type=argparse.FileType('r'), help='Card file to be shown.')
+	sp.add_argument('cards_path', help='Path to the cards.')
 
 	#-- Adiciona opções para listagens
 	sp = subparsers.add_parser('list', help='List cards.')
@@ -99,6 +100,7 @@ def mtg():
 	sp.add_argument('-et', '--exp_code_to', help='Remap expansion to.')
 	sp.add_argument('-an', '--alias_names', action='store_true', help='Create Name Alias Structure.')
 	sp.add_argument('-ac', '--alias_colors', action='store_true', help='Create Color Alias Structure.')
+	sp.add_argument('-acl', '--alias_collections', action='store_true', help='Create Collection Alias Structure.')
 
 	#-- Adiciona opções para library	
 	sp = subparsers.add_parser('alias', help='Options about Alias.')
@@ -106,6 +108,7 @@ def mtg():
 	sp.add_argument('--name', action='store_true', help='Create alias files by name.')
 	sp.add_argument('--color', action='store_true', help='Create alias files by color.')
 	sp.add_argument('--type', action='store_true', help='Create alias files by type.')
+	sp.add_argument('--collection', action='store_true', help='Create alias files by collection.')
 	sp.add_argument('cards_path', help='Path to the cards.')
 	sp.add_argument('alias_directory', help='Base directory to put the alias.')
 
@@ -136,8 +139,6 @@ def mtg():
 			MtgGetCard(args.source, args.out_directory)
 		elif args.l:
 			MtgGetList(args.source, args.out_directory)
-	elif args.cmd == 'show':
-		show(args.cards_path)
 	elif args.cmd == 'list':		
 		if args.all:
 			listCards(args.cards_path, True, True, True, True, True, True, True, args.name, args.cmc, args.mana, args.type, args.subtype, args.text, args.power, args.price, args.open, args.copy, True, True, True, args.sort)
@@ -161,6 +162,8 @@ def mtg():
 			collection.aliasByNames()
 		elif args.alias_colors:
 			collection.aliasByColors()
+		elif args.alias_collections:
+			collection.aliasByCollections()
 	elif args.cmd == 'import':
 		importList(args.cards_path, args.out_directory, args.sum)
 	elif args.cmd == 'export':
@@ -175,6 +178,8 @@ def mtg():
 			aliasByColors(args.cards_path, args.alias_directory)
 		if args.type:
 			aliasByTypes(args.cards_path, args.alias_directory)
+		if args.collection:
+			aliasByCollections(args.cards_path, args.alias_directory)
 	elif args.cmd == 'test':
 		collection = MtgCollection()
 		collection.load()

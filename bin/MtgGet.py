@@ -6,7 +6,7 @@ import re
 import os.path
 import urllib2
 import urllib
-from BeautifulSoup import BeautifulSoup as BSHTML
+from bs4 import BeautifulSoup  as BSHTML
 
 def MtgGetCard(key, directory):
 	key = key if len(key) > 0 else imput('Card to search: ')

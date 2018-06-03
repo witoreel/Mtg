@@ -55,6 +55,8 @@ def sortAndDistinctCards(cards, sort):
 		cards = sorted(cards, key=lambda card: card.getName()) 
 	elif sort == 'T':
 		cards = sorted(cards, key=lambda card: card.getType()+card.getSubtype())
+	elif sort == 'n':
+		cards = sorted(cards, key=lambda card: card.getNumber())
 	else:
 		cards = sorted(cards, key=lambda card: card.getName())  
 
@@ -131,6 +133,9 @@ def listCards(files, n, t, m, cm, ty, sty, pt, name, cmc, mana, type, subtype, t
 	cards = getCardFilesList(files)
 	cards = filterCards(cards, name, cmc, mana, type, subtype, text, power, sprice)
 	cards = sortAndDistinctCards(cards, sort)
+	for c in cards:
+		c.updateQuantityEmblem()
+
 	if op:
 		createTempView(cards, copy)
 	else:	
@@ -140,7 +145,7 @@ def listCards(files, n, t, m, cm, ty, sty, pt, name, cmc, mana, type, subtype, t
 		total_price = 0
 		for card in cards:
 			ls = card.getLsLine(n, t, m, cm, ty, sty, pt, price, quantity, total)
-			print parseLsLine(str(count),ls[0], ls[1], ls[2], ls[3], ls[4], ls[5], ls[6], ls[7], ls[8], ls[9])
+			print parseLsLine(ls[10], ls[0], ls[1], ls[2], ls[3], ls[4], ls[5], ls[6], ls[7], ls[8], ls[9])
 			total_cards += int(ls[7]) if ls[7] != None else 0
 			total_price += ls[9] if ls[9] != None else 0
 			count += 1		
@@ -267,7 +272,7 @@ def importList(listfile, directory, sum):
 			card = collection.getCardByNameAndExpansion(name, expansion_code)
 
 		if card == None:
-			m = '['+str(row)+'/'+str(total)+'] Card Not Found: '+line.strip()
+			m = 'CNF: '+line.strip()
 			missing += m+'\n'
 			print m
 			continue
@@ -280,6 +285,7 @@ def importList(listfile, directory, sum):
 			filename = card.name + ' ('+card.expansion_name+').card'
 		else:
 			filename = card.name + '.card'
+
 		filepath = os.path.join(sub_directory, filename)
 		if not os.path.exists(filepath):
 			call(["cp", card.path, filepath])
@@ -289,14 +295,14 @@ def importList(listfile, directory, sum):
 			c.quantity = quantity
 			c.saveMetadata()
 			c.updateQuantityEmblem()
-			print '['+str(row)+'/'+str(total)+'] Imported: '+name
+			print '['+str(row)+'/'+str(total)+'] Imported: '+str(quantity)+' x '+name
 		else:
 			c = MtgCard(filepath)
 			c.loadFromImage()
 			c.quantity = c.quantity + quantity
 			c.saveMetadata()
 			c.updateQuantityEmblem()
-			print '['+str(row)+'/'+str(total)+'] Skiped: '+name
+			print '['+str(row)+'/'+str(total)+'] Added: '+str(quantity)+' x '+name
 	
 	if len(missing.strip()) > 0:
 		f = open(os.path.join(sub_directory, 'missing.txt'),'w')

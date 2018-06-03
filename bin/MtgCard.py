@@ -3,7 +3,7 @@
 import pyexiv2
 import json
 import os.path
-from BeautifulSoup import BeautifulSoup as BSHTML
+from bs4 import BeautifulSoup  as BSHTML
 import urllib2
 import urllib
 import re
@@ -263,7 +263,7 @@ class MtgCard:
 		its.append(self.getQuantity() if q else None) 	
 		its.append(self.getPrice() if pr else None) 
 		its.append(self.getTotal() if tot else None) 
-
+		its.append(self.getNumber()) 
 
 		return its
 
